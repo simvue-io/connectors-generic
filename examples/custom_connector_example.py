@@ -1,6 +1,6 @@
 """
-MOOSE Connector Example
-========================
+Custom Connector Example
+=========================
 This is an example of using the generic WrappedRun class to create Connectors.
 
 We will use a simple bash script to create some dummy 'temperature' data, 
@@ -95,6 +95,8 @@ def custom_connector_example(ci=False, offline=False) -> None:
         )
         # Then run launch to start the experiment
         run.launch(pathlib.Path(__file__).parent.joinpath("temperatures.sh"))
+        
+        return run.id
         
         
 if __name__ == "__main__":

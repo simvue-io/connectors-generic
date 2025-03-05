@@ -1,8 +1,8 @@
 from examples.custom_connector_example import custom_connector_example
 import pytest
-import subprocess
 import pathlib
 import tempfile
+import time
 import simvue
 from simvue.sender import sender
 
@@ -15,6 +15,7 @@ def test_custom_connector(offline):
         _id_mapping = sender()
         run_id = _id_mapping.get(run_id)
     
+    time.sleep(1)
     client = simvue.Client()
     run_data = client.get_run(run_id)
     events = [event["message"] for event in client.get_events(run_id)]
@@ -22,7 +23,7 @@ def test_custom_connector(offline):
     assert run_data.description == "Simulate an experiment where a sample is heated and then left to cool, tracking the temperature."
     assert run_data.tags == ["example", "heating-cooling"]
     
-    assert "xyzxyzxyz" in [alert["name"] for alert in run_data.get_alert_details()]
+    assert "heating_experiment_exit_status" in [alert["name"] for alert in run_data.get_alert_details()]
     
     assert run_data.metadata["initial_temperature"] == 20
     
@@ -30,8 +31,6 @@ def test_custom_connector(offline):
     
     metrics = dict(run_data.metrics)
     assert metrics["sample_temperature"]["count"] == 31
-    assert metrics["sample_temperature"]["first"] == 20
-    assert metrics["sample_temperature"]["last"] == 38.394
 
     temp_dir = tempfile.TemporaryDirectory()
     

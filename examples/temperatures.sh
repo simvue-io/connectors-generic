@@ -12,7 +12,7 @@ linear_rate=5
 decay_rate=0.05
 num_linear_steps=10
 num_decay_steps=20
-time_per_step=5
+time_per_step=1
 
 # Create or clear the output file
 echo "Step,Time,Temperature" > $output_file
