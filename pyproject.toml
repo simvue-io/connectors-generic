@@ -1,0 +1,21 @@
+[project]
+name = "simvue-integrations-template"
+version = "0.1.0"
+description = "A template which all new Connectors (integrations which provide Simvue tracking for Non-Python software) should inherit from."
+authors = [
+    {name = "Matt Field",email = "matthew.field@ukaea.uk"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+simvue = "2.0.0a3"
+ukaea-multiparser = "^1.0.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
