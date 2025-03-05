@@ -9,6 +9,7 @@ from typing import Callable, Union
 
 NAME_REGEX: str = r"^[a-zA-Z0-9\-\_\s\/\.:]+$"
 
+
 class Operator(str, enum.Enum):
     """The operator to use to compare the reduced evaluation value to a given target threshold."""
 

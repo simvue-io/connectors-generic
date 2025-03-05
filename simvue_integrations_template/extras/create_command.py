@@ -5,6 +5,7 @@ Function for creating a command from a dictionary of user inputs.
 
 import typing
 
+
 def format_command_env_vars(
     cmd_kwargs: typing.Dict[str, typing.Union[bool, str, float, int]],
 ) -> list[str]:

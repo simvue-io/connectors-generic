@@ -99,12 +99,12 @@ import multiparser.parsing.tail as mp_tail_parser
 # Create a new Connector class which inherits from WrappedRun
 class TemperatureRun(WrappedRun):
     script_path: pathlib.Path = None
-    
+
     # Override the `_pre_simulation` method to launch the process
     def _pre_simulation(self):
         # Call the base method first
         super()._pre_simulation()
-        
+
         # Add a process to the run using `add_process`
         self.add_process(
             identifier="heating_experiment",
@@ -112,7 +112,7 @@ class TemperatureRun(WrappedRun):
             script=self.script_path,
             completion_trigger=self._trigger # Sets a multiprocessing Event once the simulation is completed
         )
-    
+
     # Override the `_during_simulation` method to track the temperature data
     def _during_simulation(self):
         # Use the `tail` method of the Multiparser `FileMonitor` object to track file, line by line
@@ -121,18 +121,18 @@ class TemperatureRun(WrappedRun):
             parser_func=mp_tail_parser.record_csv, # Use the built-in CSV parser, which returns a dictionary of data and metadata as each line is written
             callback=lambda csv_data, metadata: self.log_metrics( # Use data from those two dictionaries to log a metric:
                 {'sample_temperature': csv_data["Temperature"]},
-                 time=csv_data["Time"], 
-                 step=csv_data["Step"], 
-                 ) 
+                 time=csv_data["Time"],
+                 step=csv_data["Step"],
+                 )
         )
-        
+
     # Override the `_post_simulation` method to upload the final CSV file of temperature data
     def _post_simulation(self):
         self.save_file(self.script_path.with_suffix(".csv"), category="output")
-        
+
         # And finally call the base method
         super()._post_simulation()
-    
+
     # Override the `launch` method to accept the path to the bash script
     def launch(self, script_path: str):
         self.script_path = script_path
