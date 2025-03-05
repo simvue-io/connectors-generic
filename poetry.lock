@@ -1938,5 +1938,5 @@ termcolor = ">=2.3,<3.0"
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.10,<3.13"
-content-hash = "b268e109a3de02a30bdbda2a98b8d6ece454f1bb6114d5226ab9340857e5d01b"
+python-versions = ">=3.10,<3.14"
+content-hash = "7a6cc98bb15f53b9c6e569383c91f4ca724d1674b15cb19e6b6281be1605914d"
