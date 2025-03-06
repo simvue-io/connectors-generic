@@ -1,6 +1,6 @@
 [project]
-name = "simvue-integrations-generic"
-version = "0.1.0"
+name = "simvue-connector"
+version = "1.0.0a1"
 description = "A generic class which all new Connectors (integrations which provide Simvue tracking for Non-Python software) should inherit from."
 authors = [
     {name = "Matt Field",email = "matthew.field@ukaea.uk"}

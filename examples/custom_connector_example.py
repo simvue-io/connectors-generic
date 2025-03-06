@@ -21,7 +21,7 @@ Alternatively, you can use the Jupyter Notebook instead.
     
 """
 
-from simvue_integrations_generic.connector import WrappedRun
+from simvue_connector.connector import WrappedRun
 import multiparser.parsing.tail as mp_tail_parser
 import time
 import pathlib

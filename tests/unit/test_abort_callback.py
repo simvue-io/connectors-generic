@@ -2,7 +2,7 @@ import time
 import threading
 import uuid
 from unittest.mock import patch
-from simvue_integrations_generic.connector import WrappedRun
+from simvue_connector.connector import WrappedRun
 import simvue
 from simvue.api.objects import Run
 

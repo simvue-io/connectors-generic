@@ -93,7 +93,7 @@ The exact contents of both of the above options can be obtained directly by clic
 
 ## Usage example
 ```python
-from simvue_integrations_template.connector import WrappedRun
+from simvue_connector.connector import WrappedRun
 import multiparser.parsing.tail as mp_tail_parser
 
 # Create a new Connector class which inherits from WrappedRun
