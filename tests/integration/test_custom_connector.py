@@ -21,7 +21,7 @@ def test_custom_connector(offline):
     events = [event["message"] for event in client.get_events(run_id)]
     
     assert run_data.description == "Simulate an experiment where a sample is heated and then left to cool, tracking the temperature."
-    assert run_data.tags == ["example", "heating-cooling"]
+    assert sorted(run_data.tags) == sorted(["example", "heating-cooling"])
     
     assert "heating_experiment_exit_status" in [alert["name"] for alert in run_data.get_alert_details()]
     
@@ -34,10 +34,10 @@ def test_custom_connector(offline):
 
     temp_dir = tempfile.TemporaryDirectory()
     
-    client.get_artifacts_as_files(run_id, "input", temp_dir.name)
+    client.get_artifacts_as_files(run_id=run_id, category="code", output_dir=temp_dir.name)
     assert pathlib.Path(temp_dir.name).joinpath("temperatures.sh").exists()
     
-    client.get_artifacts_as_files(run_id, "output", temp_dir.name)
+    client.get_artifacts_as_files(run_id=run_id, category="output", output_dir=temp_dir.name)
     assert pathlib.Path(temp_dir.name).joinpath("temperatures.csv").exists()
     
     assert run_data.status == "completed"
