@@ -74,7 +74,7 @@ source venv/bin/activate
 ```
 And then use pip to install this module:
 ```
-pip install simvue-integrations-template
+pip install simvue-connector
 ```
 
 ## Configuration
@@ -143,3 +143,7 @@ class TemperatureRun(WrappedRun):
 ## License
 
 Released under the terms of the [Apache 2](https://github.com/simvue-io/client/blob/main/LICENSE) license.
+
+## Citation
+
+To reference Simvue, please use the information outlined in this [citation file](https://github.com/simvue-io/python-api/blob/dev/CITATION.cff).
