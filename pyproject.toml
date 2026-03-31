@@ -2,38 +2,33 @@
 name = "simvue-connector"
 version = "1.0.0"
 description = "A generic class which all new Connectors (integrations which provide Simvue tracking for Non-Python software) should inherit from."
-authors = [
-    {name = "Matt Field",email = "matthew.field@ukaea.uk"}
-]
+authors = [{ name = "Matt Field", email = "matthew.field@ukaea.uk" }]
 readme = "README.md"
-requires-python = ">=3.10,<3.14"
-dependencies = [
-    "simvue (>=2.0.0)",
-    "ukaea-multiparser (>=1.0.2)"
-]
+requires-python = ">=3.10,<3.15"
+dependencies = ["simvue (>=2.0.0)", "ukaea-multiparser (>=1.0.2)"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
-    "Natural Language :: English",
-    "Operating System :: Unix",
-    "Operating System :: Microsoft :: Windows",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Scientific/Engineering",
-    "Topic :: System :: Monitoring",
-    "Topic :: Utilities",
-    "Typing :: Typed"
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: Unix",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+  "Topic :: System :: Monitoring",
+  "Topic :: Utilities",
+  "Typing :: Typed",
 ]
 keywords = [
-    "tracking",
-    "monitoring",
-    "metrics",
-    "alerting",
-    "metrics-gathering"
+  "tracking",
+  "monitoring",
+  "metrics",
+  "alerting",
+  "metrics-gathering",
 ]
 
 [project.urls]
