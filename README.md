@@ -17,7 +17,7 @@ A template which all new Connectors (integrations which provide Simvue tracking 
 
 <div align="center">
 <a href="https://github.com/simvue-io/client/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/simvue-io/client"/></a>
-<img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue">
+<img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue">
 </div>
 
 <h3 align="center">
@@ -27,71 +27,87 @@ A template which all new Connectors (integrations which provide Simvue tracking 
 </h3>
 
 ## Implementation
+
 A customised `WrappedRun` class has been created which has the following methods:
 
 ### Pre Simulation
 
 The `_pre_simulation` method is called when the `launch()` method is called, but before the file monitor is started. This means that it should include:
 
-* Upload of any input or code files
-* Adding any tags or metadata which are present before the simulation begins
-* Creating alerts
-* Logging events messages required before the simulation begins
-* Adding the process for the simulation, using parameters which will be input into the launch method
+- Upload of any input or code files
+- Adding any tags or metadata which are present before the simulation begins
+- Creating alerts
+- Logging events messages required before the simulation begins
+- Adding the process for the simulation, using parameters which will be input into the launch method
 
 Because this class inherits from the base Simvue Run class, all methods associated with that are available through self.
 
 You should also call the functionality from the WrappedRun class **at the top of your method** using `super()._pre_simulation()` - this creates a trigger which can be used to abort the file monitor, and checks that a simvue Run has been initialized before the launch method was called.
 
 ### During Simulation
+
 The `_during_simulation` method is called when the `launch()` method is called, and within the self.file_monitor context manager. This is an instance of the FileMonitor class from multiparser, which monitors any files which you wish to track. You should include all of your multiparser code inside this method, eg:
 
-* Calls to the .track() method, detailing a file to read and the methods or functions used to process and upload data from it
-* Calls to the .tail() method, detailing a file to read line by line as it is written and the methods or functions used to process and upload data from it
+- Calls to the .track() method, detailing a file to read and the methods or functions used to process and upload data from it
+- Calls to the .tail() method, detailing a file to read line by line as it is written and the methods or functions used to process and upload data from it
 
 ### Post Simulation
+
 The `_post_simulation` method is called when the `launch()` method is called, but after the file monitor is finished. This means that it should include:
 
-* Upload of any output files
-* Adding any tags or metadata which are generated after the simulation finishes
-* Logging events messages required after the simulation finishes
+- Upload of any output files
+- Adding any tags or metadata which are generated after the simulation finishes
+- Logging events messages required after the simulation finishes
 
 Because this class inherits from the base Simvue Run class, all methods associated with that are available through self. You should also call the functionality from the WrappedRun class **at the bottom of your method** using `super()._post_simulation()` - this adds support for soft aborts of simulation, and termination of simulations with alerts.
 
 ### Launch
+
 The `launch` method is the overall method which starts the file monitor and calls the three methods above. This should be overriden to require the user to provide any inputs relevant to running the simulation, for example the path to an executable, the path of an input file, and/or the path of an output directory.
 
 Once you have created your set of required parameters, make sure to call the parent launch method: `super().launch()`.
 
 ## Installation
+
 To install and use this connector, first create a virtual environment:
+
 ```
 python -m venv venv
 ```
+
 Then activate it:
+
 ```
 source venv/bin/activate
 ```
+
 And then use pip to install this module:
+
 ```
 pip install simvue-connector
 ```
 
 ## Configuration
+
 The service URL and token can be defined as environment variables:
+
 ```sh
 export SIMVUE_URL=...
 export SIMVUE_TOKEN=...
 ```
+
 or a file `simvue.toml` can be created containing:
+
 ```toml
 [server]
 url = "..."
 token = "..."
 ```
+
 The exact contents of both of the above options can be obtained directly by clicking the **Create new run** button on the web UI. Note that the environment variables have preference over the config file.
 
 ## Usage example
+
 ```python
 from simvue_connector.connector import WrappedRun
 import multiparser.parsing.tail as mp_tail_parser
