@@ -26,6 +26,7 @@ from simvue_connector.connector import WrappedRun
 import multiparser.parsing.tail as mp_tail_parser
 import time
 import pathlib
+import uuid
 
 
 # Create a new class which inherits from WrappedRun
@@ -82,13 +83,15 @@ def custom_connector_example(offline=False) -> str | None:
     # Use our custom connector class
     with TemperatureRun(mode="offline" if offline else "online") as run:
         # Initialize the run as normal
+        _uuid = f"{uuid.uuid4()}".split("-")[0]
         run.init(
-            name="custom-connector-example-%d" % time.time(),
+            name=f"custom-connector-example-{_uuid}",
             folder="/examples",
             description="Simulate an experiment where a sample is heated and then left to cool, tracking the temperature.",
             tags=["example", "heating-cooling"],
             retention_period="10 mins" if os.environ.get("CI") else None,
         )
+        run.config(disable_resources_metrics=True)
 
         # Can upload extra things we care about, eg could upload some metadata
         run.update_metadata(
@@ -102,4 +105,3 @@ def custom_connector_example(offline=False) -> str | None:
 
 if __name__ == "__main__":
     custom_connector_example()
-

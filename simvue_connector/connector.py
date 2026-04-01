@@ -3,7 +3,7 @@
 Generic connector class to build on top of when creating integrations for non-Python software.
 """
 
-import multiprocessing
+import threading
 import typing
 
 import click
@@ -29,9 +29,9 @@ class WrappedRun(simvue.Run):
     def __init__(
         self,
         mode: typing.Literal["online", "offline", "disabled"] = "online",
-        abort_callback: typing.Optional[typing.Callable[[Self], None]] = None,
-        server_token: typing.Optional[str] = None,
-        server_url: typing.Optional[str] = None,
+        abort_callback: typing.Callable[[Self], None] | None = None,
+        server_token: str | None = None,
+        server_url: str | None = None,
         debug: bool = False,
     ):
         """Initialize the WrappedRun instance, extending the user supplied alert abort callback.
@@ -45,11 +45,11 @@ class WrappedRun(simvue.Run):
                 online - objects sent directly to Simvue server
                 offline - everything is written to disk for later dispatch
                 disabled - disable monitoring completelyby default "online"
-        abort_callback : typing.Optional[typing.Callable[[Self], None]], optional
+        abort_callback : typing.Callable[[Self], None] | None, optional
             callback executed when the run is aborted, by default None
-        server_token : typing.Optional[str], optional
+        server_token : str | None, optional
             overwrite value for server token, by default None
-        server_url : typing.Optional[str], optional
+        server_url : str | None, optional
             overwrite value for server URL, by default None
         debug : bool, optional
             run in debug mode, by default False
@@ -85,7 +85,7 @@ class WrappedRun(simvue.Run):
         By default, creates a termination trigger for the FileMonitor to use, and checks that a Simvue run has
         been initialised. This method should be called BEFORE the rest of your functions in the overriden method.
         """
-        self._trigger = multiprocessing.Event()
+        self._trigger = threading.Event()
 
         if not self._sv_obj:
             self._error("Run must be initialized before launching the simulation.")
