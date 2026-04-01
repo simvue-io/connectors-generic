@@ -1242,14 +1242,14 @@ files = [
 
 [[package]]
 name = "simvue"
-version = "2.4.0"
+version = "2.4.1"
 description = "Simulation tracking and monitoring"
 optional = false
 python-versions = "<3.15,>=3.10"
 groups = ["main"]
 files = [
-    {file = "simvue-2.4.0-py3-none-any.whl", hash = "sha256:4b54e51c39e9afd51cf8824df0fdea1ccf3acf67e387187a2c218a8701d06328"},
-    {file = "simvue-2.4.0.tar.gz", hash = "sha256:7816dbd46e54cc5edd071bf5eb4951919b50859787174797e872f0aeb62f6231"},
+    {file = "simvue-2.4.1-py3-none-any.whl", hash = "sha256:916283674be924fefc8eba4afebbc37bf18cc47c4ea92d8851c63d9786004f49"},
+    {file = "simvue-2.4.1.tar.gz", hash = "sha256:022bcc336cd131a3436378c31d91b415a431cbb7dfcd380c7b5561511ccdf058"},
 ]
 
 [package.dependencies]
