@@ -5,7 +5,7 @@ Objects which could be useful in the construction of multiple connectors.
 # ruff: noqa: DOC201
 
 import enum
-from typing import Callable, Union
+from collections.abc import Callable
 
 NAME_REGEX: str = r"^[a-zA-Z0-9\-\_\s\/\.:]+$"
 
@@ -20,7 +20,7 @@ class Operator(str, enum.Enum):
     EQUAL = "=="
 
 
-OPERATORS: dict[str, Callable[[Union[int, float], Union[int, float]], bool]] = {
+OPERATORS: dict[str, Callable[[int | float, int | float], bool]] = {
     ">": lambda x, y: x > y,
     "<": lambda x, y: x < y,
     ">=": lambda x, y: x >= y,
