@@ -3,17 +3,15 @@
 Function for creating a command from a dictionary of user inputs.
 """
 
-import typing
-
 
 def format_command_env_vars(
-    cmd_kwargs: typing.Dict[str, typing.Union[bool, str, float, int]],
+    cmd_kwargs: dict[str, bool | str | float | int],
 ) -> list[str]:
     """Create a list of strings representing environment variables to a command from a dictionary of kwarg key:value pairs.
 
     Parameters
     ----------
-    cmd_kwargs : typing.Dict[str, typing.Union[bool, str, float, int]]
+    cmd_kwargs : dict[str, bool | str | float | int]
         The variables to pass to the command, in a dictionary
 
     Returns
@@ -22,7 +20,7 @@ def format_command_env_vars(
         A list of strings representing a command
 
     """
-    cmd_list = []
+    cmd_list: list[str] = []
     for kwarg, val in cmd_kwargs.items():
         kwarg = kwarg.strip("-")
         if len(kwarg) == 1:

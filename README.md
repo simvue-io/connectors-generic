@@ -126,7 +126,7 @@ class TemperatureRun(WrappedRun):
             identifier="heating_experiment",
             executable="bash",
             script=self.script_path,
-            completion_trigger=self._trigger # Sets a multiprocessing Event once the simulation is completed
+            completion_trigger=self._trigger # Sets a threading Event once the simulation is completed
         )
 
     # Override the `_during_simulation` method to track the temperature data
