@@ -26,9 +26,6 @@ class WrappedRun(simvue.Run):
     for their given application. Make sure to call the base method as well.
     """
 
-    _terminated: bool = False
-    _failed: bool = False
-
     def __init__(
         self,
         mode: typing.Literal["online", "offline", "disabled"] = "online",
@@ -60,6 +57,9 @@ class WrappedRun(simvue.Run):
         """
         self._trigger: threading.Event = threading.Event()
         self.file_monitor: multiparser.FileMonitor | None = None
+
+        self._terminated: bool = False
+        self._failed: bool = False
 
         def _extended_abort_callback(self: Self) -> None:
             """Extend the user supplied abort alert callback to allow for the soft stop of simulations."""
