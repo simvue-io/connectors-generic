@@ -156,3 +156,8 @@ class WrappedRun(simvue.Run):
             self.file_monitor.run()
 
         self._post_simulation()
+
+    def load(self, *_: typing.Any, **__: typing.Any) -> None:
+        """Load a previously created set of simulation results into Simvue."""
+
+        pass
