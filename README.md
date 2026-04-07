@@ -67,6 +67,10 @@ The `launch` method is the overall method which starts the file monitor and call
 
 Once you have created your set of required parameters, make sure to call the parent launch method: `super().launch()`.
 
+### Load
+
+The `load` method should allow you to load a set of results from the simulation which have already been run into the Simvue server. This should reuse as many of the other methods already defined as possible, such as the callback and/or parser functions, but note that it will not launch the file monitor.
+
 ## Installation
 
 To install and use this connector, first create a virtual environment:
