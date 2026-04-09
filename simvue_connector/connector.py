@@ -33,6 +33,7 @@ class WrappedRun(simvue.Run):
         server_token: str | None = None,
         server_url: str | None = None,
         debug: bool = False,
+        server_profile: str | None = None,
     ) -> None:
         """Initialize the WrappedRun instance, extending the user supplied alert abort callback.
 
@@ -53,6 +54,10 @@ class WrappedRun(simvue.Run):
             overwrite value for server URL, by default None
         debug : bool, optional
             run in debug mode, by default False
+        server_profile : str | None, optional
+            specify alternative profile to use for server, this assumes
+            additional profiles have been specified in the configuration.
+            Default is to use the main server.
 
         """
         self._trigger: threading.Event = threading.Event()
@@ -73,6 +78,7 @@ class WrappedRun(simvue.Run):
             server_token=pydantic.SecretStr(server_token) if server_token else None,
             server_url=server_url,
             debug=debug,
+            server_profile=server_profile,
         )
 
     def _soft_abort(self) -> None:
