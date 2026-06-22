@@ -37,7 +37,7 @@ repository = "https://github.com/simvue-io/connectors-generic"
 documentation = "https://docs.simvue.io"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^9.0.3"
+pytest = "^9.1.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
