@@ -124,10 +124,14 @@ class WrappedRun(simvue.Run):
                 fg="red" if self._term_color else None,
                 bold=self._term_color,
             )
-        elif self._failed:
+        elif self._failed or self.executor.get_error_summary():
             self.log_event("Simulation Failed!")
-        else:
+        elif self.executor.success:
             self.log_event("Simulation Complete!")
+        else:
+            self.log_event(
+                "Simulation monitoring ended before all process outcomes were known."
+            )
 
     @override
     def __exit__(
