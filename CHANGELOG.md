@@ -1,5 +1,9 @@
 # Change Log
 
+## [v1.1.2](https://github.com/simvue-io/connectors-generic/releases/tag/v1.1.2) - 2026-09-29
+
+- Improve detection of simulations which succeeded or failed
+
 ## [v1.1.1](https://github.com/simvue-io/connectors-generic/releases/tag/v1.1.1) - 2026-04-09
 
 - Include extra parameter `server_profiles` in __init__ method
