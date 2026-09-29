@@ -40,8 +40,10 @@ def test_custom_abort_callback():
         run.launch()
                 
     client = simvue.Client()
-    # Check that run was aborted correctly, and did not exist for longer than 10s
+    # Check that run was aborted, didn't  exist for longer than 10s, and that the event is present
     run_data = client.get_run(run_id)
+    events = [event["message"] for event in client.get_events(run_id)]
     runtime = run_data.runtime
     assert runtime.tm_sec < 10
     assert run_data.metadata.get("callback_triggered") == True
+    assert "Simulation aborted due to an alert being triggered." in events
