@@ -6,7 +6,8 @@ Generic connector class to build on top of when creating integrations for non-Py
 import threading
 import types
 import typing
-
+import time
+import psutil
 import click
 import multiparser
 import pydantic
@@ -92,6 +93,15 @@ class WrappedRun(simvue.Run):
         if self._trigger:
             self._trigger.set()
 
+    def _poll_process(self, pid: int) -> None:
+        """Wait until the external MOOSE process exits, then set the completion trigger."""
+        while not self._trigger.is_set() and psutil.pid_exists(pid):
+            time.sleep(1.0)
+        if self._trigger.is_set():
+            return  # Some form of auto-detection already won
+        self.log_event(f"External MOOSE process ({pid}) has exited.")
+        self._trigger.set()
+
     def _pre_simulation(self) -> None:
         """Execute after launch() is called, but before a simulation begins.
 
@@ -160,7 +170,6 @@ class WrappedRun(simvue.Run):
         By default calls the four methods above, and sets up a FileMonitor for tracking files.
         """
         self._pre_simulation()
-
         self._start_simulation()
 
         # Start an instance of the file monitor, to keep track of log and results files
@@ -173,12 +182,22 @@ class WrappedRun(simvue.Run):
 
         self._post_simulation()
 
-    def watch(self, *_: typing.Any, **__: typing.Any) -> None:
+    def watch(self, pid: int, *_: typing.Any, **__: typing.Any) -> None:
         """Watch a directory of results and upload results to Simvue as the simulation progresses.
 
         By default calls the methods above, excluding `_start_simulation`.
+
+        Parameters
+        ----------
+        pid : int
+            The process ID of the simulation
         """
         self._pre_simulation()
+
+        self.set_pid(pid)
+        threading.Thread(
+            target=self._poll_process, args=(pid,), daemon=True, name="process_watcher"
+        ).start()
 
         # Start an instance of the file monitor, to keep track of log and results files
         with multiparser.FileMonitor(
@@ -192,4 +211,4 @@ class WrappedRun(simvue.Run):
 
     def load(self, *_: typing.Any, **__: typing.Any) -> None:
         """Load a previously created set of simulation results into Simvue."""
-        raise NotImplementedError("Load is not implemented in this connector.")
+        pass
