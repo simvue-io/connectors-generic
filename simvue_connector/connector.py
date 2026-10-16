@@ -106,6 +106,10 @@ class WrappedRun(simvue.Run):
         # Uses 'ignore' so that on abort, run is not closed before post_simulation is run.
         self._abort_on_alert: typing.Literal["ignore", "run", "terminate"] = "ignore"
 
+    def _start_simulation(self) -> None:
+        """Execute after _pre_simulation() is called to begin the simulation."""
+        pass
+
     def _during_simulation(self) -> None:
         """Execute after launch() is called and after the simulation begins, within the FileMonitor."""
         pass
@@ -153,9 +157,11 @@ class WrappedRun(simvue.Run):
     def launch(self, *_: typing.Any, **__: typing.Any) -> None:
         """Launch the simulation and the monitoring.
 
-        By default calls the three methods above, and sets up a FileMonitor for tracking files.
+        By default calls the four methods above, and sets up a FileMonitor for tracking files.
         """
         self._pre_simulation()
+
+        self._start_simulation()
 
         # Start an instance of the file monitor, to keep track of log and results files
         with multiparser.FileMonitor(
@@ -167,7 +173,10 @@ class WrappedRun(simvue.Run):
 
         self._post_simulation()
 
+    def watch(self, *_: typing.Any, **__: typing.Any) -> None:
+        """Watch a directory of results and upload results to Simvue as the simulation progresses."""
+        raise NotImplementedError("Watch is not implemented in this connector.")
+
     def load(self, *_: typing.Any, **__: typing.Any) -> None:
         """Load a previously created set of simulation results into Simvue."""
-
-        pass
+        raise NotImplementedError("Load is not implemented in this connector.")
