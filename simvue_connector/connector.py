@@ -192,8 +192,19 @@ class WrappedRun(simvue.Run):
         ----------
         pid : int
             The process ID of the simulation
+
+        Raises
+        ------
+        RuntimeError
+            No process was found corresponding to the provided pid.
         """
         self._watching = True
+
+        if not psutil.pid_exists(pid):
+            raise RuntimeError(
+                f"No process found running at {pid} - is your simulation running?"
+            )
+
         self._pre_simulation()
 
         self.set_pid(pid)
