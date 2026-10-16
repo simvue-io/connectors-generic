@@ -174,8 +174,21 @@ class WrappedRun(simvue.Run):
         self._post_simulation()
 
     def watch(self, *_: typing.Any, **__: typing.Any) -> None:
-        """Watch a directory of results and upload results to Simvue as the simulation progresses."""
-        raise NotImplementedError("Watch is not implemented in this connector.")
+        """Watch a directory of results and upload results to Simvue as the simulation progresses.
+
+        By default calls the methods above, excluding `_start_simulation`.
+        """
+        self._pre_simulation()
+
+        # Start an instance of the file monitor, to keep track of log and results files
+        with multiparser.FileMonitor(
+            exception_callback=self.log_event,
+            termination_trigger=self._trigger,
+        ) as self.file_monitor:
+            self._during_simulation()
+            self.file_monitor.run()
+
+        self._post_simulation()
 
     def load(self, *_: typing.Any, **__: typing.Any) -> None:
         """Load a previously created set of simulation results into Simvue."""
