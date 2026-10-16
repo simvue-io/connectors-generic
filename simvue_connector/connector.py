@@ -64,6 +64,7 @@ class WrappedRun(simvue.Run):
         self._trigger: threading.Event = threading.Event()
         self.file_monitor: multiparser.FileMonitor | None = None
 
+        self._watching: bool = False
         self._terminated: bool = False
         self._failed: bool = False
 
@@ -192,6 +193,7 @@ class WrappedRun(simvue.Run):
         pid : int
             The process ID of the simulation
         """
+        self._watching = True
         self._pre_simulation()
 
         self.set_pid(pid)
