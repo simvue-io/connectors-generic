@@ -4,12 +4,13 @@ Generic connector class to build on top of when creating integrations for non-Py
 """
 
 import threading
+import time
 import types
 import typing
-import time
-import psutil
+
 import click
 import multiparser
+import psutil
 import pydantic
 import simvue
 from simvue.run import SimvueRunError
@@ -210,11 +211,16 @@ class WrappedRun(simvue.Run):
         ----------
         pid : int
             The process ID of the simulation
+        *_ : typing.Any
+            Additional arguments
+        **__ : typing.Any
+            Additional keyword arguments
 
         Raises
         ------
         RuntimeError
             No process was found corresponding to the provided pid.
+
         """
         self._watching = True
 
