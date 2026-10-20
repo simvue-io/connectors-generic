@@ -26,6 +26,7 @@ from simvue_connector.connector import WrappedRun
 import multiparser.parsing.tail as mp_tail_parser
 import pathlib
 import uuid
+import csv
 
 try:
     from typing import override
@@ -36,12 +37,20 @@ except ImportError:
 # Create a new class which inherits from WrappedRun
 class TemperatureRun(WrappedRun):
     script_path: pathlib.Path | None = None
+    results_dir: pathlib.Path | None = None
 
     # Override the `_pre_simulation` method to launch the process
     @override
     def _pre_simulation(self):
         # Call the base method first
         super()._pre_simulation()
+
+        # Do something which should always happen
+        self.log_event("Starting connector...")
+
+    def _start_simulation(self):
+        if not self.script_path:
+            raise RuntimeError("Expected script path to be provided.")
 
         # Add a process to the run using `add_process`
         self.add_process(
@@ -57,12 +66,9 @@ class TemperatureRun(WrappedRun):
         if not self.file_monitor:
             raise RuntimeError("Simulation has not been launched.")
 
-        if not self.script_path:
-            raise RuntimeError("Expected script path to be initialised.")
-
         # Use the `tail` method of the Multiparser `FileMonitor` object to track file, line by line
         self.file_monitor.tail(
-            path_glob_exprs=str(self.script_path.with_suffix(".csv")),
+            path_glob_exprs=str(self.results_dir.joinpath("temperatures.csv")),
             parser_func=mp_tail_parser.record_csv,  # Use the built-in CSV parser, which returns a dictionary of data and metadata as each line is written
             callback=lambda csv_data, metadata: (
                 self.log_metrics(  # Use data from those two dictionaries to log a metric:
@@ -76,10 +82,8 @@ class TemperatureRun(WrappedRun):
     # Override the `_post_simulation` method to upload the final CSV file of temperature data
     @override
     def _post_simulation(self) -> None:
-        if not self.script_path:
-            raise RuntimeError("Expected script path to be initialised.")
 
-        self.save_file(self.script_path.with_suffix(".csv"), category="output")
+        self.save_file(self.results_dir.joinpath("temperatures.csv"), category="output")
 
         # And finally call the base method
         super()._post_simulation()
@@ -88,8 +92,41 @@ class TemperatureRun(WrappedRun):
     @override
     def launch(self, script_path: pathlib.Path) -> None:
         self.script_path = script_path
+        self.results_dir = script_path.parent
         # Call the base `launch` method to call the above methods in the correct order
         super().launch()
+
+    # Override the `watch` method to accept a directory where results will be created and a PID
+    @override
+    def watch(self, pid: int, results_dir: pathlib.Path) -> None:
+        self.results_dir = results_dir
+
+        # Call the base `watch` method to call the above methods in the correct order
+        super().watch(pid)
+
+    @override
+    def load(self, results_dir: pathlib.Path) -> None:
+        self.results_dir = results_dir
+        csv_path = results_dir.joinpath("temperatures.csv")
+
+        if not csv_path.exists():
+            raise FileNotFoundError(
+                "Could not find CSV file in provided results directory!"
+            )
+
+        # Call any existing methods which can be reused
+        self._pre_simulation()
+
+        # Parse existing files (replicate FileMonitor logic, reusing parser methods where possible)
+        with csv_path.open(newline="") as f:
+            for csv_data in csv.DictReader(f):
+                self.log_metrics(
+                    {"sample_temperature": csv_data["Temperature"]},
+                    time=csv_data["Time"],
+                    step=csv_data["Step"],
+                )
+
+        self._post_simulation()
 
 
 def custom_connector_example(offline: bool = False) -> str | None:

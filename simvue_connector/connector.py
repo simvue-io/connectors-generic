@@ -94,13 +94,31 @@ class WrappedRun(simvue.Run):
         if self._trigger:
             self._trigger.set()
 
+    @staticmethod
+    def _pid_alive(pid: int) -> bool:
+        """Check whether the process at `pid` is still running.
+
+        A process counts as dead if its PID no longer exists, or if it exists
+        but is a zombie (i.e. it has exited but not yet been reaped by its
+        parent - `psutil.pid_exists` would still return True for it).
+        """
+        if not psutil.pid_exists(pid):
+            return False
+        try:
+            return psutil.Process(pid).status() != psutil.STATUS_ZOMBIE
+        except psutil.NoSuchProcess:
+            return False
+        except psutil.AccessDenied:
+            # Cannot read the state,fall back to the PID existing.
+            return True
+
     def _poll_process(self, pid: int) -> None:
-        """Wait until the external MOOSE process exits, then set the completion trigger."""
-        while not self._trigger.is_set() and psutil.pid_exists(pid):
+        """Wait until the external process exits, then set the completion trigger."""
+        while not self._trigger.is_set() and self._pid_alive(pid):
             time.sleep(1.0)
         if self._trigger.is_set():
             return  # Some form of auto-detection already won
-        self.log_event(f"External MOOSE process ({pid}) has exited.")
+        self.log_event(f"External process ({pid}) has exited.")
         self._trigger.set()
 
     def _pre_simulation(self) -> None:
@@ -200,7 +218,7 @@ class WrappedRun(simvue.Run):
         """
         self._watching = True
 
-        if not psutil.pid_exists(pid):
+        if not self._pid_alive(pid):
             raise RuntimeError(
                 f"No process found running at {pid} - is your simulation running?"
             )
