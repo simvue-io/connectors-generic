@@ -4,11 +4,13 @@ Generic connector class to build on top of when creating integrations for non-Py
 """
 
 import threading
+import time
 import types
 import typing
 
 import click
 import multiparser
+import psutil
 import pydantic
 import simvue
 from simvue.run import SimvueRunError
@@ -63,6 +65,7 @@ class WrappedRun(simvue.Run):
         self._trigger: threading.Event = threading.Event()
         self.file_monitor: multiparser.FileMonitor | None = None
 
+        self._watching: bool = False
         self._terminated: bool = False
         self._failed: bool = False
 
@@ -92,6 +95,33 @@ class WrappedRun(simvue.Run):
         if self._trigger:
             self._trigger.set()
 
+    @staticmethod
+    def _pid_alive(pid: int) -> bool:
+        """Check whether the process at `pid` is still running.
+
+        A process counts as dead if its PID no longer exists, or if it exists
+        but is a zombie (i.e. it has exited but not yet been reaped by its
+        parent - `psutil.pid_exists` would still return True for it).
+        """
+        if not psutil.pid_exists(pid):
+            return False
+        try:
+            return psutil.Process(pid).status() != psutil.STATUS_ZOMBIE
+        except psutil.NoSuchProcess:
+            return False
+        except psutil.AccessDenied:
+            # Cannot read the state,fall back to the PID existing.
+            return True
+
+    def _poll_process(self, pid: int) -> None:
+        """Wait until the external process exits, then set the completion trigger."""
+        while not self._trigger.is_set() and self._pid_alive(pid):
+            time.sleep(1.0)
+        if self._trigger.is_set():
+            return  # Some form of auto-detection already won
+        self.log_event(f"External process ({pid}) has exited.")
+        self._trigger.set()
+
     def _pre_simulation(self) -> None:
         """Execute after launch() is called, but before a simulation begins.
 
@@ -105,6 +135,10 @@ class WrappedRun(simvue.Run):
 
         # Uses 'ignore' so that on abort, run is not closed before post_simulation is run.
         self._abort_on_alert: typing.Literal["ignore", "run", "terminate"] = "ignore"
+
+    def _start_simulation(self) -> None:
+        """Execute after _pre_simulation() is called to begin the simulation."""
+        pass
 
     def _during_simulation(self) -> None:
         """Execute after launch() is called and after the simulation begins, within the FileMonitor."""
@@ -141,21 +175,66 @@ class WrappedRun(simvue.Run):
         traceback: types.TracebackType | None,
     ) -> None:
         """Set run status to terminated if the simulation was stopped by an alert."""
-        _out = super().__exit__(exc_type, value, traceback)
-
-        # If run was terminated, set the status to terminated at the very end so that users can continue to upload to the run as normal
-        if self._terminated:
-            self.set_status("terminated")
-        elif self._failed:
-            self.set_status("failed")
-        return _out
+        try:
+            return super().__exit__(exc_type, value, traceback)
+        finally:
+            # If run was terminated, set the status to terminated at the very end so that users can continue to upload to the run as normal
+            if self._terminated:
+                self.set_status("terminated")
+            elif self._failed:
+                self.set_status("failed")
 
     def launch(self, *_: typing.Any, **__: typing.Any) -> None:
         """Launch the simulation and the monitoring.
 
-        By default calls the three methods above, and sets up a FileMonitor for tracking files.
+        By default calls the four methods above, and sets up a FileMonitor for tracking files.
         """
         self._pre_simulation()
+        self._start_simulation()
+
+        # Start an instance of the file monitor, to keep track of log and results files
+        with multiparser.FileMonitor(
+            exception_callback=self.log_event,
+            termination_trigger=self._trigger,
+        ) as self.file_monitor:
+            self._during_simulation()
+            self.file_monitor.run()
+
+        self._post_simulation()
+
+    def watch(self, pid: int, *_: typing.Any, **__: typing.Any) -> None:
+        """Watch a directory of results and upload results to Simvue as the simulation progresses.
+
+        By default calls the methods above, excluding `_start_simulation`.
+
+        Parameters
+        ----------
+        pid : int
+            The process ID of the simulation
+        *_ : typing.Any
+            Additional arguments
+        **__ : typing.Any
+            Additional keyword arguments
+
+        Raises
+        ------
+        RuntimeError
+            No process was found corresponding to the provided pid.
+
+        """
+        self._watching = True
+
+        if not self._pid_alive(pid):
+            raise RuntimeError(
+                f"No process found running at {pid} - is your simulation running?"
+            )
+
+        self._pre_simulation()
+
+        self.set_pid(pid)
+        threading.Thread(
+            target=self._poll_process, args=(pid,), daemon=True, name="process_watcher"
+        ).start()
 
         # Start an instance of the file monitor, to keep track of log and results files
         with multiparser.FileMonitor(
@@ -169,5 +248,4 @@ class WrappedRun(simvue.Run):
 
     def load(self, *_: typing.Any, **__: typing.Any) -> None:
         """Load a previously created set of simulation results into Simvue."""
-
         pass
