@@ -175,14 +175,14 @@ class WrappedRun(simvue.Run):
         traceback: types.TracebackType | None,
     ) -> None:
         """Set run status to terminated if the simulation was stopped by an alert."""
-        _out = super().__exit__(exc_type, value, traceback)
-
-        # If run was terminated, set the status to terminated at the very end so that users can continue to upload to the run as normal
-        if self._terminated:
-            self.set_status("terminated")
-        elif self._failed:
-            self.set_status("failed")
-        return _out
+        try:
+            return super().__exit__(exc_type, value, traceback)
+        finally:
+            # If run was terminated, set the status to terminated at the very end so that users can continue to upload to the run as normal
+            if self._terminated:
+                self.set_status("terminated")
+            elif self._failed:
+                self.set_status("failed")
 
     def launch(self, *_: typing.Any, **__: typing.Any) -> None:
         """Launch the simulation and the monitoring.
