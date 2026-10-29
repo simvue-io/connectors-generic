@@ -48,6 +48,7 @@ class TemperatureRun(WrappedRun):
         # Do something which should always happen
         self.log_event("Starting connector...")
 
+    @override
     def _start_simulation(self):
         if not self.script_path:
             raise RuntimeError("Expected script path to be provided.")
