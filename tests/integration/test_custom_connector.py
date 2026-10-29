@@ -97,7 +97,7 @@ def test_custom_connector(offline, method, set_offline_directory):
 
     assert run_data.metadata["initial_temperature"] == 20
 
-    assert "Simulation Complete!" in events
+    assert "Monitoring Complete!" in events
 
     metrics = dict(run_data.metrics)
     assert metrics["sample_temperature"]["count"] == 31

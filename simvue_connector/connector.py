@@ -161,7 +161,7 @@ class WrappedRun(simvue.Run):
         elif self._failed or self.executor.get_error_summary():
             self.log_event("Simulation Failed!")
         elif self.executor.success:
-            self.log_event("Simulation Complete!")
+            self.log_event("Monitoring Complete!")
         else:
             self.log_event(
                 "Simulation monitoring ended before all process outcomes were known."
