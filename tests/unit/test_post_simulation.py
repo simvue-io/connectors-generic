@@ -23,7 +23,7 @@ def wrapped_run() -> WrappedRun:
     (
         (True, True, {}, "Simulation Failed!"),
         (False, False, {"simulation": "process exited non-zero"}, "Simulation Failed!"),
-        (False, True, {}, "Simulation Complete!"),
+        (False, True, {}, "Monitoring Complete!"),
         (
             False,
             False,
